@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="stylesheet" href="style.css"> 
+  <title>Slot Machine</title> 
+ <style type="text/css" id="dcoder_stylesheet">body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+#slotMachine {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.slot {
+    font-size: 2em;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+#spinButton {
+    background-color: #007BFF;
+    color: white;
+    padding: 15px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin-top: 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+}
+
+#spinButton:hover {
+    background-color: #0056b3;
+}
+
+#aposta {
+    padding: 10px;
+    font-size: 16px;
+}
+
+#turboButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin-top: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+}
+
+#turboButton:hover {
+    background-color: #45a049;
+}
+
+#infoPanel {
+    margin-top: 20px;
+}
+
+#infoPanel p {
+    font-size: 18px;
+}
+
+#roundCount {
+    font-weight: bold;
+    font-size: 24px;
+    color: #007BFF;
+}
+
+#saldoValue {
+    font-weight: bold;
+    font-size: 24px;
+    color: #28a745;
+}</style></head> 
+ <body> 
+  <div class="container"> 
+   <div id="slotMachine"> 
+    <div class="slot" id="reel1">
+     🍒
+    </div> 
+    <div class="slot" id="reel2">
+     🔔
+    </div> 
+    <div class="slot" id="reel3">
+     ⭐
+    </div> 
+    <div class="slot" id="reel4">
+     🎉
+    </div> 
+    <div class="slot" id="reel5">
+     💰
+    </div> 
+    <div class="slot" id="reel6">
+     💎
+    </div> 
+    <div class="slot" id="reel7">
+     🍒
+    </div> 
+    <div class="slot" id="reel8">
+     🔔
+    </div> 
+    <div class="slot" id="reel9">
+     ⭐
+    </div> 
+   </div> <button id="spinButton" onclick="spin()">Girar</button> 
+   <input type="number" id="aposta" placeholder="Aposta"> <button id="turboButton" onclick="ativarTurbo()">Turbo</button> <button id="aumentarAposta" onclick="aumentarAposta()">Aumentar Aposta</button> <button id="diminuirAposta" onclick="diminuirAposta()">Diminuir Aposta</button> 
+   <div id="infoPanel"> 
+    <p>Rodadas: <span id="roundCount">0</span></p> 
+    <p>Saldo: $<span id="saldoValue">100.00</span></p> 
+   </div> 
+  </div> 
+  <script src="script.js"></script>   
+ 
+<script type="text/javascript" id="dcoder_script">let saldo = 100.00;
+let rodadas = 0;
+let modoTurbo = false;
+const apostaMinima = 0.20;
+
+function spin() {
+    const aposta = parseFloat(document.getElementById('aposta').value);
+
+    document.getElementById('spinButton').disabled = true;
+
+    if (!isNaN(saldo) && saldo >= aposta && aposta >= apostaMinima) {
+        const symbols = ['🍒', '🔔', '⭐', '🎉', '💰', '💎'];
+        const tempoDeGiro = modoTurbo ? 100 : 1000;
+
+        for (let i = 1; i <= 9; i++) {
+            const reel = document.getElementById('reel' + i);
+            reel.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        }
+
+        setTimeout(() => {
+            document.getElementById('spinButton').disabled = false;
+
+            const vitoria = verificaVitoria();
+
+            if (vitoria) {
+                atualizarPainel();
+            } else {
+                saldo -= aposta;
+                rodadas++;
+                atualizarPainel();
+            }
+        }, tempoDeGiro);
+    } else {
+        document.getElementById('spinButton').disabled = false;
+        alert("Aposta inválida. O saldo é insuficiente ou a aposta é menor que o mínimo permitido.");
+    }
+}
+
+function ativarTurbo() {
+    modoTurbo = !modoTurbo;
+    alert(`Modo Turbo ${modoTurbo ? 'ativado' : 'desativado'}.`);
+}
+
+function adicionarSaldo() {
+    const novoSaldo = parseFloat(prompt("Digite o valor que deseja adicionar ao saldo:"));
+
+    if (!isNaN(novoSaldo) && novoSaldo > 0) {
+        saldo += novoSaldo;
+        atualizarPainel();
+    } else {
+        alert("Por favor, insira um valor válido maior que zero.");
+    }
+}
+
+function aumentarAposta() {
+    const inputAposta = document.getElementById('aposta');
+    const valorAtual = parseFloat(inputAposta.value);
+    const novoValor = valorAtual + 0.20;
+
+    if (novoValor <= saldo) {
+        inputAposta.value = novoValor.toFixed(2);
+    }
+}
+
+function diminuirAposta() {
+    const inputAposta = document.getElementById('aposta');
+    const valorAtual = parseFloat(inputAposta.value);
+    const novoValor = valorAtual - 0.20;
+
+    if (novoValor >= apostaMinima) {
+        inputAposta.value = novoValor.toFixed(2);
+    }
+}
+
+function verificaVitoria() {
+    const symbols = [
+        ['reel1', 'reel2', 'reel3'],
+        ['reel4', 'reel5', 'reel6'],
+        ['reel7', 'reel8', 'reel9'],
+        ['reel1', 'reel5', 'reel9'],
+        ['reel3', 'reel5', 'reel7']
+    ];
+
+    for (const combo of symbols) {
+        const [id1, id2, id3] = combo;
+        const symbol1 = document.getElementById(id1).innerText;
+        const symbol2 = document.getElementById(id2).innerText;
+        const symbol3 = document.getElementById(id3).innerText;
+
+        if (symbol1 === symbol2 && symbol2 === symbol3) {
+            calcularGanho(symbol1);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function calcularGanho(simbolo) {
+    const resultados = {
+        '🍒': { valor: 0.5 },
+        '🔔': { valor: 1.0 },
+        '⭐': { valor: 2.0 },
+        '🎉': { valor: 50 },
+        '💰': { valor: 100 },
+        '💎': { valor: 250 }
+    };
+
+    let ganhoTotal = 0;
+
+    if (resultados[simbolo] && Math.random() <= resultados[simbolo].probabilidade) {
+        ganhoTotal = aposta * resultados[simbolo].valor;
+
+        if (verificaVitoria()) {
+            ganhoTotal *= 3;
+        }
+    }
+
+    saldo += parseFloat(isNaN(ganhoTotal) ? 0 : ganhoTotal.toFixed(2));
+
+    rodadas++;
+    atualizarPainel();
+}
+
+function atualizarPainel() {
+    document.getElementById('saldoValue').innerText = saldo.toFixed(2);
+    document.getElementById('roundCount').innerText = rodadas;
+}</script></body></html>
